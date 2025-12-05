@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Rotation Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .creator {
+            font-size: 1.2rem;
+            color: #4dabf7;
+            margin-top: 10px;
+        }
+        
+        .current-team {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .current-team h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ffd43b;
+        }
+        
+        .team-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            font-size: 2.5rem;
+            margin: 20px 0;
+        }
+        
+        .team-name {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .countdown {
+            font-size: 1.5rem;
+            margin-top: 15px;
+            color: #63e6be;
+        }
+        
+        .calendar {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .calendar h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #ffd43b;
+            font-size: 1.8rem;
+        }
+        
+        .months-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .month {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .month h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #4dabf7;
+            font-size: 1.4rem;
+        }
+        
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .day {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 5px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        
+        .day.current {
+            background: linear-gradient(135deg, #4dabf7, #3bc9db);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(77, 171, 247, 0.4);
+        }
+        
+        .day .team {
+            display: block;
+            margin-top: 5px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .day .emoji {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+            color: #ffd43b;
+        }
+        
+        @media (max-width: 768px) {
+            .months-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .team-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Team Rotation Scheduler</h1>
+            <div class="creator">Created by 🐬 Francium 🐬</div>
+        </header>
+        
+        <div class="current-team">
+            <h2>Current Team on Duty</h2>
+            <div class="team-display">
+                <span id="current-emoji">🌊</span>
+                <span class="team-name" id="current-team">Wava</span>
+            </div>
+            <div class="countdown" id="countdown">Time remaining: -- hours -- minutes -- seconds</div>
+        </div>
+        
+        <div class="calendar">
+            <h2>Schedule Calendar</h2>
+            <div class="months-container" id="months-container">
+                <!-- Months will be generated here -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            Schedule runs from 5 PM UTC to 5 PM UTC daily • Teams: Wava, Echo, Zippy, Bloop, Blu
+        </div>
+    </div>
+
+    <script>
+        // Team configuration
+        const teams = [
+            { name: 'Wava', emoji: '🌊' },
+            { name: 'Echo', emoji: '🐚' },
+            { name: 'Zippy', emoji: '🏎️' },
+            { name: 'Bloop', emoji: '🫧' },
+            { name: 'Blu', emoji: '💙' }
+        ];
+        
+        // Get current UTC time
+        function getCurrentUTC() {
+            const now = new Date();
+            return new Date(Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate(),
+                now.getUTCHours(),
+                now.getUTCMinutes(),
+                now.getUTCSeconds()
+            ));
+        }
+        
+        // Get the team for a given date at 5 PM UTC
+        function getTeamForDate(date) {
+            // Reference date: Dec 1, 2025 at 5 PM UTC
+            const referenceDate = new Date(Date.UTC(2025, 11, 1, 17, 0, 0)); // Note: months are 0-indexed, so 11 = December
+            
+            // Calculate days difference
+            const diffTime = date.getTime() - referenceDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Handle negative days (before reference)
+            const teamIndex = ((diffDays % teams.length) + teams.length) % teams.length;
+            return teams[teamIndex];
+        }
+        
+        // Update current team and countdown
+        function updateCurrentTeam() {
+            const now = getCurrentUTC();
+            const currentTeam = getTeamForDate(now);
+            
+            // Find when this team's shift ends (5 PM UTC today or tomorrow)
+            const shiftEnd = new Date(Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate(),
+                17, 0, 0
+            ));
+            
+            if (now.getUTCHours() >= 17) {
+                // Shift ends tomorrow at 5 PM UTC
+                shiftEnd.setUTCDate(shiftEnd.getUTCDate() + 1);
+            }
+            
+            // Update display
+            document.getElementById('current-team').textContent = currentTeam.name;
+            document.getElementById('current-emoji').textContent = currentTeam.emoji;
+            
+            // Calculate time remaining
+            const timeRemaining = shiftEnd.getTime() - now.getTime();
+            const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            document.getElementById('countdown').textContent = 
+                `Time remaining: ${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes ${seconds.toString().padStart(2, '0')} seconds`;
+        }
+        
+        // Generate calendar for a specific month
+        function generateMonthCalendar(year, month) {
+            const monthContainer = document.createElement('div');
+            monthContainer.className = 'month';
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthHeader = document.createElement('h3');
+            monthHeader.textContent = `${monthNames[month]} ${year}`;
+            monthContainer.appendChild(monthHeader);
+            
+            // Weekday headers
+            const weekdaysContainer = document.createElement('div');
+            weekdaysContainer.className = 'weekdays';
+            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            weekdays.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.textContent = day;
+                weekdaysContainer.appendChild(dayEl);
+            });
+            monthContainer.appendChild(weekdaysContainer);
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(Date.UTC(year, month, 1));
+            const lastDay = new Date(Date.UTC(year, month + 1, 0));
+            const daysInMonth = lastDay.getUTCDate();
+            const startingDayOfWeek = firstDay.getUTCDay();
+            
+            // Days container
+            const daysContainer = document.createElement('div');
+            daysContainer.className = 'days';
+            
+            // Add empty cells for days before the first day
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                daysContainer.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            const today = getCurrentUTC();
+            const isCurrentMonth = today.getUTCFullYear() === year && today.getUTCMonth() === month;
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDate = new Date(Date.UTC(year, month, day, 17, 0, 0)); // 5 PM UTC
+                const team = getTeamForDate(dayDate);
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                
+                if (isCurrentMonth && day === today.getUTCDate()) {
+                    dayEl.classList.add('current');
+                }
+                
+                dayEl.innerHTML = `
+                    <span class="emoji">${team.emoji}</span>
+                    <span>${day}</span>
+                    <span class="team">${team.name}</span>
+                `;
+                
+                daysContainer.appendChild(dayEl);
+            }
+            
+            monthContainer.appendChild(daysContainer);
+            return monthContainer;
+        }
+        
+        // Generate calendar for specified months
+        function generateCalendar() {
+            const monthsContainer = document.getElementById('months-container');
+            monthsContainer.innerHTML = '';
+            
+            // December 2025
+            monthsContainer.appendChild(generateMonthCalendar(2025, 11));
+            
+            // January to June 2026
+            for (let month = 0; month <= 5; month++) {
+                monthsContainer.appendChild(generateMonthCalendar(2026, month));
+            }
+        }
+        
+        // Initialize and update
+        updateCurrentTeam();
+        generateCalendar();
+        
+        // Update every second for countdown
+        setInterval(updateCurrentTeam, 1000);
+    </script>
+</body>
+  </html>
