@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Rotation Schedule</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            min-width: 650px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .creator {
+            font-size: 1.2rem;
+            color: #4dabf7;
+            margin-top: 10px;
+        }
+        
+        .current-team {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .current-team h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .team-display {
+            font-size: 2.5rem;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .time-remaining {
+            font-size: 1.3rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .month-calendar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .month-header {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 40px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .calendar-day.current {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+            font-weight: bold;
+        }
+        
+        .calendar-day-number {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .calendar-day-team {
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        
+        .team-wava { color: #4dabf7; }
+        .team-echo { color: #ff922b; }
+        .team-zippy { color: #ff6b6b; }
+        .team-bloop { color: #74c0fc; }
+        .team-blu { color: #40a9ff; }
+        
+        .empty-day {
+            background: transparent;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                min-width: 650px;
+            }
+            
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .team-display {
+                font-size: 2rem;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Team Rotation Schedule</h1>
+            <div class="creator">Created by 🐬francium🐬</div>
+        </header>
+        
+        <div class="current-team">
+            <h2>Current Team on Duty</h2>
+            <div class="team-display">
+                <span id="current-team-icon">🔄</span>
+                <span id="current-team-name">Loading...</span>
+            </div>
+            <div class="time-remaining" id="time-remaining">Calculating...</div>
+        </div>
+        
+        <div class="calendar-container" id="calendar-container">
+            <!-- Calendars will be generated here -->
+        </div>
+        
+        <div class="footer">
+            Schedule runs from 5 PM UTC daily • Teams rotate every 24 hours
+        </div>
+    </div>
+
+    <script>
+        // Team configuration
+        const teams = [
+            { name: 'Wava', icon: '🌊', colorClass: 'team-wava' },
+            { name: 'Echo', icon: '🐚', colorClass: 'team-echo' },
+            { name: 'Zippy', icon: '🏎️', colorClass: 'team-zippy' },
+            { name: 'Bloop', icon: '🫧', colorClass: 'team-bloop' },
+            { name: 'Blu', icon: '💙', colorClass: 'team-blu' }
+        ];
+        
+        // Get the team for a specific date (5 PM UTC start)
+        function getTeamForDate(date) {
+            // December 1, 2025 is the reference date (team 0 = Wava)
+            const referenceDate = new Date('2025-12-01T17:00:00Z');
+            const targetDate = new Date(date);
+            
+            // Set to 5 PM UTC for comparison
+            targetDate.setUTCHours(17, 0, 0, 0);
+            
+            // Calculate days difference
+            const diffTime = targetDate.getTime() - referenceDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Handle negative dates (before reference)
+            const teamIndex = ((diffDays % teams.length) + teams.length) % teams.length;
+            return teams[teamIndex];
+        }
+        
+        // Get current team and time remaining
+        function getCurrentTeamInfo() {
+            const now = new Date();
+            const currentUTC = new Date(now.toISOString());
+            
+            // Find today's 5 PM UTC
+            const today5PM = new Date(currentUTC);
+            today5PM.setUTCHours(17, 0, 0, 0);
+            
+            // If current time is before 5 PM UTC today, the current team started yesterday at 5 PM
+            let teamStart;
+            if (currentUTC < today5PM) {
+                teamStart = new Date(today5PM);
+                teamStart.setUTCDate(teamStart.getUTCDate() - 1);
+            } else {
+                teamStart = today5PM;
+            }
+            
+            const teamEnd = new Date(teamStart);
+            teamEnd.setUTCDate(teamEnd.getUTCDate() + 1);
+            
+            const timeRemaining = teamEnd.getTime() - currentUTC.getTime();
+            
+            const team = getTeamForDate(teamStart);
+            
+            return {
+                team: team,
+                timeRemaining: timeRemaining,
+                endTime: teamEnd
+            };
+        }
+        
+        // Format time remaining
+        function formatTimeRemaining(ms) {
+            if (ms <= 0) return 'Rotation complete!';
+            
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            
+            return `${hours}h ${minutes}m ${seconds}s remaining`;
+        }
+        
+        // Update current team display
+        function updateCurrentTeamDisplay() {
+            const info = getCurrentTeamInfo();
+            document.getElementById('current-team-icon').textContent = info.team.icon;
+            document.getElementById('current-team-name').textContent = info.team.name;
+            document.getElementById('time-remaining').textContent = formatTimeRemaining(info.timeRemaining);
+        }
+        
+        // Generate calendar for a specific month and year
+        function generateCalendar(month, year) {
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getUTCDay(); // 0 = Sunday
+            
+            let html = `<div class="month-calendar">
+                <div class="month-header">${getMonthName(month)} ${year}</div>
+                <div class="day-grid">`;
+            
+            // Day headers
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                html += `<div class="day-header">${day}</div>`;
+            });
+            
+            // Empty cells for days before the first day of the month
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div class="calendar-day empty-day"></div>';
+            }
+            
+            // Days of the month
+            const today = new Date();
+            const currentYear = today.getUTCFullYear();
+            const currentMonth = today.getUTCMonth();
+            const currentDay = today.getUTCDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const team = getTeamForDate(date);
+                const isCurrentDay = (year === currentYear && month === currentMonth && day === currentDay);
+                
+                html += `<div class="calendar-day ${isCurrentDay ? 'current' : ''}">
+                    <div class="calendar-day-number">${day}</div>
+                    <div class="${team.colorClass} calendar-day-team">${team.name}</div>
+                </div>`;
+            }
+            
+            html += '</div></div>';
+            return html;
+        }
+        
+        function getMonthName(monthIndex) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[monthIndex];
+        }
+        
+        // Generate calendars for the specified period
+        function generateAllCalendars() {
+            const container = document.getElementById('calendar-container');
+            let html = '';
+            
+            // December 2025
+            html += generateCalendar(11, 2025);
+            
+            // January to June 2026
+            for (let month = 0; month <= 5; month++) {
+                html += generateCalendar(month, 2026);
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Initialize the page
+        function init() {
+            updateCurrentTeamDisplay();
+            generateAllCalendars();
+            
+            // Update time remaining every second
+            setInterval(updateCurrentTeamDisplay, 1000);
+        }
+        
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+
